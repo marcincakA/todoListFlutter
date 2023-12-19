@@ -1,4 +1,3 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled/task/task.dart';
@@ -47,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = TaskCreator();
         break;
       case 1:
-        page = Placeholder();
+        page = TasksPage();
         break;
       default:
         throw UnimplementedError('No widget for $selectedIndex');
@@ -158,16 +157,30 @@ class TasksPage extends StatelessWidget{
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
 
-
+    if(appState.taskList.isEmpty) {
+      return Center(
+        child: Text('You have no tasks yet.'),
+      );
+    }
 
     return ListView(
       children: [
         Padding(
           padding: const EdgeInsets.all(20) ,
-          child: Text('You have favorites:'),
+          child: Text('You have ${appState.taskList.length} tasks:'),
         ),
-
+      for (var task in appState.taskList)
+        ListTile(
+          leading: FlutterLogo(size: 72.0,),
+          title: Text(task.name),
+          subtitle: Text(task.description),
+          trailing: ElevatedButton(onPressed: () {
+            appState.taskList.remove(task);
+    },
+          child: null,)
+          ),
       ],
     );
   }
 }
+
