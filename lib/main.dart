@@ -28,6 +28,11 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier {
   //todo list of tasks
   var taskList = <Task>[];
+
+  void removeTasks(Task task) {
+    taskList.remove(task);
+    notifyListeners();
+  }
 }
 
 
@@ -102,6 +107,21 @@ class _TaskCreatorState extends State<TaskCreator> {
   final nazovController = TextEditingController();
   final popisController = TextEditingController();
 
+  void _showErrorDialog(String errorMessage) {
+    showDialog(context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Chyba'),
+            content: Text(errorMessage),
+            actions: <Widget>[
+              TextButton(onPressed: () {
+                Navigator.of(context).pop(); // zatvori dialog
+              }, child: Text('OK')),
+            ],
+          );
+        });
+  }
+
   @override
   void dispose(){
     nazovController.dispose();
@@ -115,6 +135,7 @@ class _TaskCreatorState extends State<TaskCreator> {
 
     return Center(
       child: Column(
+
         children: [
           TextFormField(
             controller: nazovController,
@@ -130,20 +151,25 @@ class _TaskCreatorState extends State<TaskCreator> {
               labelText: 'Strucny popis',
             ),
           ),
+          SizedBox(height: 10,),
           ElevatedButton(onPressed: (){
             if(nazovController.text.isEmpty || popisController.text.isEmpty) {
-              print('Prazdne hodnoty');
+              _showErrorDialog("Prazdne hodnoty");
+              print('Prazdne hodnoty'); //console output
               return;
             }
             Task task = Task(nazovController.text, popisController.text);
             for(Task taskIn in appState.taskList) {
               if(taskIn.name == task.name) {
-                    print('Task s danym nazvom uz existuje');
+                    _showErrorDialog("Task s danym nazvom uz existuje");
+                    print('Task s danym nazvom uz existuje'); //console output
                     return;
                   }
                 }
-              print('Podarilo sa');
+              print('Podarilo sa'); //console output
               appState.taskList.add(task);
+              nazovController.clear();
+              popisController.clear();
 
               }, child: Text('Pridaj ulohu'))
         ],
@@ -175,9 +201,9 @@ class TasksPage extends StatelessWidget{
           title: Text(task.name),
           subtitle: Text(task.description),
           trailing: ElevatedButton(onPressed: () {
-            appState.taskList.remove(task);
+            appState.removeTasks(task);
     },
-          child: null,)
+          child: Icon(Icons.done),)
           ),
       ],
     );
