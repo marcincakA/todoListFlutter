@@ -1,6 +1,7 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/task/task.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   //todo list of tasks
+  var taskList = <Task>[];
 }
 
 
@@ -92,35 +94,59 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 
-class TaskCreator extends StatelessWidget {
+class TaskCreator extends StatefulWidget {
+  @override
+  State<TaskCreator> createState() => _TaskCreatorState();
+}
+
+class _TaskCreatorState extends State<TaskCreator> {
+  final nazovController = TextEditingController();
+  final popisController = TextEditingController();
+
+  @override
+  void dispose(){
+    nazovController.dispose();
+    popisController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
 
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  //appState.toggleFavourite();
-                },
-                icon: Icon(Icons.favorite),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  //appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
+          TextFormField(
+            controller: nazovController,
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Nazov ulohy',
+            ),
           ),
+          TextFormField(
+            controller: popisController,
+            decoration: InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Strucny popis',
+            ),
+          ),
+          ElevatedButton(onPressed: (){
+            if(nazovController.text.isEmpty || popisController.text.isEmpty) {
+              print('Prazdne hodnoty');
+              return;
+            }
+            Task task = Task(nazovController.text, popisController.text);
+            for(Task taskIn in appState.taskList) {
+              if(taskIn.name == task.name) {
+                    print('Task s danym nazvom uz existuje');
+                    return;
+                  }
+                }
+              print('Podarilo sa');
+              appState.taskList.add(task);
+
+              }, child: Text('Pridaj ulohu'))
         ],
       ),
     );
